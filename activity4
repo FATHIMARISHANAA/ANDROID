@@ -1,0 +1,100 @@
+package com.example.myapplication;
+
+import androidx.appcompat.app.AppCompatActivity;
+import android.content.Intent;
+import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
+import android.widget.Switch;
+
+public class MainActivity extends AppCompatActivity {
+    Button bCancel, bProceed;
+    EditText etFirstName, etLastName, etEmail, etPassword;
+    RadioGroup rgGender;
+    Switch swNewUser;
+    boolean isAllFieldsChecked = false;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        // Initialize UI components
+        bProceed = findViewById(R.id.proceedButton);
+        bCancel = findViewById(R.id.cancelButton);
+        etFirstName = findViewById(R.id.firstName);
+        etLastName = findViewById(R.id.lastName);
+        etEmail = findViewById(R.id.email);
+        etPassword = findViewById(R.id.password);
+        rgGender = findViewById(R.id.genderGroup);
+        swNewUser = findViewById(R.id.newUserSwitch);
+
+        // Proceed button click listener
+        bProceed.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                isAllFieldsChecked = CheckAllFields();
+                if (isAllFieldsChecked) {
+                    // Retrieve selected gender
+                    int selectedGenderId = rgGender.getCheckedRadioButtonId();
+                    RadioButton rbSelectedGender = findViewById(selectedGenderId);
+                    String gender = rbSelectedGender != null ? rbSelectedGender.getText().toString() : "Not specified";
+                    
+                    // Retrieve new user switch status
+                    boolean isNewUser = swNewUser.isChecked();
+
+                    // Pass data to the next activity
+                    Intent i = new Intent(MainActivity.this, MainActivity2.class);
+                    i.putExtra("FirstName", etFirstName.getText().toString());
+                    i.putExtra("LastName", etLastName.getText().toString());
+                    i.putExtra("Email", etEmail.getText().toString());
+                    i.putExtra("Password", etPassword.getText().toString());
+                    i.putExtra("Gender", gender);
+                    i.putExtra("NewUser", isNewUser);
+                    startActivity(i);
+                }
+            }
+        });
+
+        // Cancel button click listener
+        bCancel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                MainActivity.this.finish();
+                System.exit(0);
+            }
+        });
+    }
+
+    private boolean CheckAllFields() {
+        if (etFirstName.length() == 0) {
+            etFirstName.setError("This field required");
+            return false;
+        }
+        if (etLastName.length() == 0) {
+            etLastName.setError("This field required");
+            return false;
+        }
+        if (etEmail.length() == 0) {
+            etEmail.setError("Email required");
+            return false;
+        }
+        if (etPassword.length() == 0) {
+            etPassword.setError("Required");
+            return false;
+        } else if (etPassword.length() < 8) {
+            etPassword.setError("Password must be at least 8 characters");
+            return false;
+        }
+        // Check if a gender is selected
+        if (rgGender.getCheckedRadioButtonId() == -1) {
+            // No gender selected
+            return false;
+        }
+        return true;
+    }
+}
+
